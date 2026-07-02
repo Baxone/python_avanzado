@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masterclass MySQL & Bases de Datos Relacionales</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0f1117;
+      --bg2: #1a1d2e;
+      --bg3: #252840;
+      --accent: #00d4ff;
+      --accent2: #7c3aed;
+      --accent3: #10b981;
+      --accent4: #f59e0b;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --code-bg: #0d1117;
+      --code-border: #30363d;
+      --red: #ef4444;
+      --orange: #f97316;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ── SLIDE CONTAINER ── */
+    #slideshow {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      padding: 48px 72px;
+      flex-direction: column;
+      justify-content: center;
+      animation: fadeIn .35s ease;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ── NAVIGATION ── */
+    #nav {
+      position: fixed;
+      bottom: 24px;
+      right: 36px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      background: var(--bg3);
+      border: 1px solid #334155;
+      color: var(--text);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s, border-color .2s;
+    }
+
+    .nav-btn:hover {
+      background: var(--accent2);
+      border-color: var(--accent2);
+    }
+
+    #counter {
+      color: var(--text-muted);
+      font-size: 13px;
+      min-width: 56px;
+      text-align: center;
+    }
+
+    /* ── PROGRESS BAR ── */
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      transition: width .3s ease;
+      z-index: 100;
+    }
+
+    /* ── BLOCK BADGE ── */
+    .block-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .b1 {
+      background: #1e3a5f;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    .b2 {
+      background: #2d1b4e;
+      color: #c084fc;
+      border: 1px solid #7c3aed;
+    }
+
+    .b3 {
+      background: #064e3b;
+      color: var(--accent3);
+      border: 1px solid var(--accent3);
+    }
+
+    .b4 {
+      background: #451a03;
+      color: var(--accent4);
+      border: 1px solid var(--accent4);
+    }
+
+    .btitle {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid #334155;
+    }
+
+    /* ── TYPOGRAPHY ── */
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+
+    p {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    li {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--text-muted);
+    }
+
+    strong {
+      color: var(--text);
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .label {
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+    }
+
+    /* ── HIGHLIGHT ── */
+    .hi-blue {
+      color: var(--accent);
+    }
+
+    .hi-purple {
+      color: #c084fc;
+    }
+
+    .hi-green {
+      color: var(--accent3);
+    }
+
+    .hi-amber {
+      color: var(--accent4);
+    }
+
+    .hi-red {
+      color: var(--red);
+    }
+
+    /* ── GRID LAYOUTS ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--bg2);
+      border: 1px solid #2d3748;
+      border-radius: 12px;
+      padding: 22px 24px;
+    }
+
+    .card-accent {
+      border-color: var(--accent);
+    }
+
+    .card-purple {
+      border-color: #7c3aed;
+    }
+
+    .card-green {
+      border-color: var(--accent3);
+    }
+
+    .card-amber {
+      border-color: var(--accent4);
+    }
+
+    .card ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .card ul li::before {
+      content: "›  ";
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .card-purple ul li::before {
+      color: #c084fc;
+    }
+
+    .card-green ul li::before {
+      color: var(--accent3);
+    }
+
+    .card-amber ul li::before {
+      color: var(--accent4);
+    }
+
+    /* ── CODE ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 10px;
+      padding: 20px 22px;
+      font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      font-size: .88rem;
+      line-height: 1.7;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    pre .lang-tag {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-size: .7rem;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    code {
+      font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    }
+
+    /* SQL syntax colors */
+    .kw {
+      color: #ff79c6;
+      font-weight: 600;
+    }
+
+    /* keyword */
+    .dt {
+      color: #8be9fd;
+    }
+
+    /* datatype */
+    .str {
+      color: #f1fa8c;
+    }
+
+    /* string */
+    .num {
+      color: #bd93f9;
+    }
+
+    /* number */
+    .cmt {
+      color: #6272a4;
+      font-style: italic;
+    }
+
+    /* comment */
+    .fn {
+      color: #50fa7b;
+    }
+
+    /* function */
+    .tbl {
+      color: #ffb86c;
+    }
+
+    /* table/alias */
+    .op {
+      color: #ff5555;
+    }
+
+    /* operator / special */
+
+    /* Python syntax colors */
+    .py-kw {
+      color: #ff79c6;
+      font-weight: 600;
+    }
+
+    .py-str {
+      color: #f1fa8c;
+    }
+
+    .py-fn {
+      color: #50fa7b;
+    }
+
+    .py-cm {
+      color: #6272a4;
+      font-style: italic;
+    }
+
+    .py-cls {
+      color: #8be9fd;
+    }
+
+    .py-num {
+      color: #bd93f9;
+    }
+
+    .py-var {
+      color: #f8f8f2;
+    }
+
+    /* ── EXERCISE BOX ── */
+    .exercise {
+      background: #0f2027;
+      border-left: 4px solid var(--accent3);
+      border-radius: 0 10px 10px 0;
+      padding: 18px 22px;
+      margin-top: 12px;
+    }
+
+    .exercise .ex-title {
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--accent3);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .exercise ul {
+      list-style: disc;
+      padding-left: 20px;
+    }
+
+    .exercise ul li {
+      color: var(--text);
+      font-size: .95rem;
+    }
+
+    /* ── AGENDA ── */
+    .agenda-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      background: var(--bg2);
+      border: 1px solid #2d3748;
+      transition: border-color .2s;
+    }
+
+    .agenda-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .9rem;
+      flex-shrink: 0;
+    }
+
+    .agenda-item.a1 {
+      border-color: var(--accent);
+    }
+
+    .agenda-item.a2 {
+      border-color: #7c3aed;
+    }
+
+    .agenda-item.a3 {
+      border-color: var(--accent3);
+    }
+
+    .agenda-item.a4 {
+      border-color: var(--accent4);
+    }
+
+    .agenda-item.a1 .agenda-num {
+      background: #1e3a5f;
+      color: var(--accent);
+    }
+
+    .agenda-item.a2 .agenda-num {
+      background: #2d1b4e;
+      color: #c084fc;
+    }
+
+    .agenda-item.a3 .agenda-num {
+      background: #064e3b;
+      color: var(--accent3);
+    }
+
+    .agenda-item.a4 .agenda-num {
+      background: #451a03;
+      color: var(--accent4);
+    }
+
+    .agenda-item strong {
+      display: block;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .agenda-item span {
+      color: var(--text-muted);
+      font-size: .88rem;
+    }
+
+    /* ── DIAGRAM ── */
+    .er-box {
+      background: var(--bg2);
+      border: 2px solid #334155;
+      border-radius: 8px;
+      min-width: 140px;
+      text-align: center;
+      font-size: .85rem;
+    }
+
+    .er-box .er-title {
+      background: var(--bg3);
+      border-bottom: 2px solid #334155;
+      padding: 6px 12px;
+      font-weight: 700;
+      color: var(--accent);
+      border-radius: 6px 6px 0 0;
+    }
+
+    .er-box .er-field {
+      padding: 4px 12px;
+      border-bottom: 1px solid #2d3748;
+      color: var(--text-muted);
+      text-align: left;
+    }
+
+    .er-box .er-field.pk {
+      color: var(--accent4);
+      font-weight: 600;
+    }
+
+    .er-box .er-field.fk {
+      color: #c084fc;
+    }
+
+    .er-box .er-field:last-child {
+      border-bottom: none;
+    }
+
+    .er-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .er-arrow {
+      display: flex;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 1.6rem;
+      padding-top: 28px;
+    }
+
+    /* ── PILL LIST ── */
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .pill {
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 600;
+      border: 1px solid;
+    }
+
+    .pill-blue {
+      background: #1e3a5f22;
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .pill-purple {
+      background: #2d1b4e44;
+      color: #c084fc;
+      border-color: #7c3aed;
+    }
+
+    .pill-green {
+      background: #06503b44;
+      color: var(--accent3);
+      border-color: var(--accent3);
+    }
+
+    .pill-amber {
+      background: #45240344;
+      color: var(--accent4);
+      border-color: var(--accent4);
+    }
+
+    .pill-red {
+      background: #4e060644;
+      color: var(--red);
+      border-color: var(--red);
+    }
+
+    /* ── TITLE SLIDE ── */
+    .title-slide {
+      background: radial-gradient(ellipse at 60% 40%, #1a0a3e 0%, var(--bg) 65%);
+      justify-content: center;
+    }
+
+    .title-meta {
+      display: flex;
+      gap: 24px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .title-meta span {
+      font-size: .9rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ── SEPARATOR SLIDE ── */
+    .sep-slide {
+      background: radial-gradient(ellipse at 30% 60%, #0a1a2e 0%, var(--bg) 70%);
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .sep-slide h2 {
+      font-size: 2.8rem;
+    }
+
+    .sep-num {
+      font-size: 6rem;
+      font-weight: 900;
+      opacity: .08;
+      position: absolute;
+    }
+
+    /* ── TABLE ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+
+    th {
+      background: var(--bg3);
+      color: var(--accent);
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid #334155;
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #2d3748;
+      color: var(--text-muted);
+    }
+
+    tr:hover td {
+      background: #1a1d2e;
+    }
+
+    /* ── KEYBOARD HINTS ── */
+    #hint {
+      position: fixed;
+      bottom: 24px;
+      left: 36px;
+      font-size: .75rem;
+      color: #475569;
+    }
+
+    kbd {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="progress"></div>
+
+  <div id="slideshow">
+
+    <!-- ══════════════════════════════════════════
+     SLIDE 0 — PORTADA
+═══════════════════════════════════════════ -->
+    <div class="slide title-slide active">
+      <span class="block-badge btitle">Masterclass · 2 horas</span>
+      <h1>MySQL &amp; Bases de<br><span class="hi-blue">Datos Relacionales</span></h1>
+      <p class="subtitle">Fundamentos, diseño ER, SQL y conexión con Python</p>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     SLIDE 1 — AGENDA
+═══════════════════════════════════════════ -->
+    <div class="slide">
+      <span class="block-badge btitle">Agenda</span>
+      <h2>¿Qué vamos a ver hoy?</h2>
+      <div class="agenda-item a1">
+        <div class="agenda-num">1</div>
+        <div><strong>Fundamentos y modelo relacional</strong><span>¿Qué es una BD? ACID · Terminología · Diseño ER · 30
+            min</span></div>
+      </div>
+      <div class="agenda-item a2">
+        <div class="agenda-num">2</div>
+        <div><strong>SQL desde cero</strong><span>DDL · Tipos de datos · Claves · DML · 40 min</span></div>
+      </div>
+      <div class="agenda-item a3">
+        <div class="agenda-num">3</div>
+        <div><strong>Consultas avanzadas</strong><span>JOINs · GROUP BY · HAVING · Subconsultas · 30 min</span></div>
+      </div>
+      <div class="agenda-item a4">
+        <div class="agenda-num">4</div>
+        <div><strong>Conexión con Python</strong><span>mysql-connector · CRUD · SQLAlchemy intro · 20 min</span></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     BLOQUE 1
+═══════════════════════════════════════════ -->
+    <div class="slide sep-slide">
+      <span class="sep-num">01</span>
+      <span class="block-badge b1" style="margin-bottom:16px">Bloque 1 · 30 min</span>
+      <h2 class="hi-blue">Fundamentos y Modelo Relacional</h2>
+      <p style="max-width:560px;margin:12px auto 0">¿Qué hay detrás de cualquier aplicación que guarda datos?</p>
+    </div>
+
+    <!-- SLIDE — ¿Qué es una BD relacional? -->
+    <div class="slide">
+      <span class="block-badge b1">Bloque 1</span>
+      <h2>¿Qué es una base de datos relacional?</h2>
+      <div class="grid-2">
+        <div>
+          <p>Una <strong>base de datos relacional</strong> organiza la información en <strong>tablas</strong> con filas
+            y columnas, relacionadas entre sí mediante <strong>claves</strong>.</p>
+          <p style="margin-top:12px">Propuesta por <strong>Edgar F. Codd</strong> (IBM, 1970) y basada en la <em>teoría
+              de conjuntos</em>.</p>
+          <p style="margin-top:12px">El lenguaje estándar de consulta es <strong class="hi-blue">SQL</strong>
+            (Structured Query Language).</p>
+          <div class="pill-list" style="margin-top:20px">
+            <span class="pill pill-blue">MySQL</span>
+            <span class="pill pill-blue">PostgreSQL</span>
+            <span class="pill pill-blue">SQLite</span>
+            <span class="pill pill-blue">Oracle</span>
+            <span class="pill pill-blue">SQL Server</span>
+            <span class="pill pill-blue">MariaDB</span>
+          </div>
+        </div>
+        <div>
+          <div class="card card-accent">
+            <h3>Conceptos clave</h3>
+            <ul>
+              <li><strong>Tabla</strong> — entidad del mundo real</li>
+              <li><strong>Fila / Registro</strong> — un dato concreto</li>
+              <li><strong>Columna / Campo</strong> — atributo</li>
+              <li><strong>Clave Primaria (PK)</strong> — identificador único</li>
+              <li><strong>Clave Foránea (FK)</strong> — referencia a otra tabla</li>
+              <li><strong>Esquema</strong> — estructura de la BD</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE — ACID -->
+    <div class="slide">
+      <span class="block-badge b1">Bloque 1</span>
+      <h2>Propiedades <span class="hi-blue">ACID</span></h2>
+      <p style="margin-bottom:24px">Las transacciones en una BD relacional garantizan integridad mediante cuatro
+        propiedades:</p>
+      <div class="grid-2">
+        <div class="card card-accent">
+          <h3>A — Atomicidad</h3>
+          <p>Una transacción es <strong>todo o nada</strong>. Si falla un paso, se revierten todos los cambios.</p>
+        </div>
+        <div class="card" style="border-color:#c084fc">
+          <h3 style="color:#c084fc">C — Consistencia</h3>
+          <p>La BD pasa de un estado válido a otro estado válido. No se rompen las reglas de integridad.</p>
+        </div>
+        <div class="card card-green">
+          <h3 style="color:var(--accent3)">I — Aislamiento</h3>
+          <p>Las transacciones concurrentes no se interfieren entre sí. Cada una ve la BD en un estado coherente.</p>
+        </div>
+        <div class="card card-amber">
+          <h3 style="color:var(--accent4)">D — Durabilidad</h3>
+          <p>Una transacción confirmada (<code>COMMIT</code>) persiste aunque haya un fallo del sistema.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE — Modelo ER -->
+    <div class="slide">
+      <span class="block-badge b1">Bloque 1</span>
+      <h2>Modelo Entidad-Relación (ER)</h2>
+      <div class="grid-2">
+        <div>
+          <p>El modelo ER es una <strong>herramienta de diseño</strong> visual que permite definir la estructura de la
+            BD antes de escribir código.</p>
+          <div class="card card-accent" style="margin-top:16px">
+            <h3>Componentes</h3>
+            <ul>
+              <li><strong>Entidad</strong> — objeto del mundo real <em>(Cliente, Producto)</em></li>
+              <li><strong>Atributo</strong> — propiedad de la entidad <em>(nombre, precio)</em></li>
+              <li><strong>Relación</strong> — vínculo entre entidades <em>(compra, pertenece)</em></li>
+            </ul>
+          </div>
+          <div class="card" style="border-color:#c084fc;margin-top:12px">
+            <h3 style="color:#c084fc">Cardinalidades</h3>
+            <ul style="list-style:none;padding:0">
+              <li style="color:var(--text-muted)"><span style="color:#c084fc">1:1</span> — Persona → DNI</li>
+              <li style="color:var(--text-muted)"><span style="color:#c084fc">1:N</span> — Cliente → Pedidos</li>
+              <li style="color:var(--text-muted)"><span style="color:#c084fc">N:M</span> — Pedido ↔ Productos</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <p class="label" style="margin-bottom:12px">Diagrama ER — Tienda online</p>
+          <div class="er-row" style="flex-direction:column;gap:16px;align-items:center">
+            <div class="er-box">
+              <div class="er-title">CLIENTE</div>
+              <div class="er-field pk">🔑 id_cliente (PK)</div>
+              <div class="er-field">nombre</div>
+              <div class="er-field">email</div>
+              <div class="er-field">telefono</div>
+            </div>
+            <div style="color:var(--text-muted);font-size:.85rem;text-align:center">1 cliente → N pedidos</div>
+            <div class="er-box">
+              <div class="er-title">PEDIDO</div>
+              <div class="er-field pk">🔑 id_pedido (PK)</div>
+              <div class="er-field fk">🔗 id_cliente (FK)</div>
+              <div class="er-field">fecha</div>
+              <div class="er-field">total</div>
+            </div>
+            <div style="color:var(--text-muted);font-size:.85rem;text-align:center">N pedidos ↔ M productos</div>
+            <div class="er-row" style="gap:16px">
+              <div class="er-box">
+                <div class="er-title">PEDIDO_DETALLE</div>
+                <div class="er-field fk">🔗 id_pedido (FK)</div>
+                <div class="er-field fk">🔗 id_producto (FK)</div>
+                <div class="er-field">cantidad</div>
+                <div class="er-field">precio_unit</div>
+              </div>
+              <div class="er-box">
+                <div class="er-title">PRODUCTO</div>
+                <div class="er-field pk">🔑 id_producto (PK)</div>
+                <div class="er-field">nombre</div>
+                <div class="er-field">precio</div>
+                <div class="er-field">stock</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE — Ejercicio 1 -->
+    <div class="slide">
+      <span class="block-badge b1">Bloque 1</span>
+      <h2>Ejercicio 1 — Diseño ER</h2>
+      <p style="margin-bottom:20px">Vamos a diseñar juntos el modelo de datos de una <strong>biblioteca</strong> en
+        MySQL Workbench.</p>
+      <div class="exercise">
+        <div class="ex-title">🏋 Ejercicio práctico</div>
+        <ul>
+          <li>Identifica las <strong>entidades</strong>: Libro, Autor, Socio, Préstamo</li>
+          <li>Define los <strong>atributos</strong> de cada entidad (mínimo 3 por entidad)</li>
+          <li>Establece las <strong>relaciones</strong> y cardinalidades</li>
+          <li>Crea el diagrama en <strong>MySQL Workbench → File → New Model</strong></li>
+        </ul>
+      </div>
+      <div class="grid-3" style="margin-top:20px">
+        <div class="card">
+          <h3>Libro</h3>
+          <ul>
+            <li>id_libro</li>
+            <li>titulo</li>
+            <li>isbn</li>
+            <li>año_publicacion</li>
+          </ul>
+        </div>
+        <div class="card card-purple">
+          <h3 style="color:#c084fc">Autor</h3>
+          <ul>
+            <li>id_autor</li>
+            <li>nombre</li>
+            <li>nacionalidad</li>
+          </ul>
+        </div>
+        <div class="card card-green">
+          <h3 style="color:var(--accent3)">Socio</h3>
+          <ul>
+            <li>id_socio</li>
+            <li>nombre</li>
+            <li>email</li>
+            <li>fecha_alta</li>
+          </ul>
+        </div>
+      </div>
+      <p style="margin-top:16px;font-size:.9rem">💡 <strong>Pista:</strong> Libro ↔ Autor es <span
+          class="hi-purple">N:M</span> — necesitas una tabla intermedia <code>libro_autor</code></p>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     BLOQUE 2
+═══════════════════════════════════════════ -->
+    <div class="slide sep-slide">
+      <span class="sep-num">02</span>
+      <span class="block-badge b2" style="margin-bottom:16px">Bloque 2 · 40 min</span>
+      <h2 class="hi-purple">SQL desde cero</h2>
+      <p style="max-width:560px;margin:12px auto 0">DDL · DML · Tipos de datos · Claves · Constraints</p>
+    </div>
+
+    <!-- SLIDE — DDL: Crear BD y tabla -->
+    <div class="slide">
+      <span class="block-badge b2">Bloque 2 · DDL</span>
+      <h2>Crear la base de datos y tablas</h2>
+      <div class="grid-2">
+        <div>
+          <p style="margin-bottom:12px"><strong>DDL</strong> (Data Definition Language) define la <em>estructura</em> de
+            la BD.</p>
+          <pre><span class="lang-tag">SQL</span><span class="cmt">-- 1. Crear la base de datos</span>
+<span class="kw">CREATE DATABASE</span> tienda
+  <span class="kw">CHARACTER SET</span> utf8mb4
+  <span class="kw">COLLATE</span> utf8mb4_unicode_ci;
+
+<span class="cmt">-- 2. Seleccionarla</span>
+<span class="kw">USE</span> tienda;
+
+<span class="cmt">-- 3. Crear tabla clientes</span>
+<span class="kw">CREATE TABLE</span> <span class="tbl">clientes</span> (
+  id_cliente  <span class="dt">INT</span>          <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+  nombre      <span class="dt">VARCHAR</span>(100) <span class="kw">NOT NULL</span>,
+  email       <span class="dt">VARCHAR</span>(150) <span class="kw">UNIQUE NOT NULL</span>,
+  telefono    <span class="dt">VARCHAR</span>(15),
+  created_at  <span class="dt">DATETIME</span>     <span class="kw">DEFAULT</span> <span class="fn">NOW</span>()
+);</pre>
+        </div>
+        <div>
+          <div class="card card-purple" style="margin-bottom:14px">
+            <h3 style="color:#c084fc">Comandos DDL</h3>
+            <ul>
+              <li><span class="hi-purple">CREATE</span> — crear objetos</li>
+              <li><span class="hi-purple">ALTER</span> — modificar estructura</li>
+              <li><span class="hi-purple">DROP</span> — eliminar objeto</li>
+              <li><span class="hi-purple">TRUNCATE</span> — vaciar tabla</li>
+            </ul>
+          </div>
+          <pre><span class="lang-tag">SQL</span><span class="cmt">-- Añadir una columna</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">clientes</span>
+  <span class="kw">ADD COLUMN</span> ciudad <span class="dt">VARCHAR</span>(80);
+
+<span class="cmt">-- Eliminar tabla (¡cuidado!)</span>
+<span class="kw">DROP TABLE IF EXISTS</span> <span class="tbl">clientes</span>;</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE — Tipos de datos -->
+    <div class="slide">
+      <span class="block-badge b2">Bloque 2 · Tipos</span>
+      <h2>Tipos de datos principales en MySQL</h2>
+      <div class="grid-3">
+        <div class="card card-accent">
+          <h3>Numéricos</h3>
+          <table>
+            <tr>
+              <td><code>INT</code></td>
+              <td style="color:var(--text-muted)">Entero (±2.1 mil M)</td>
+            </tr>
+            <tr>
+              <td><code>BIGINT</code></td>
+              <td style="color:var(--text-muted)">Entero grande</td>
+            </tr>
+            <tr>
+              <td><code>DECIMAL(p,s)</code></td>
+              <td style="color:var(--text-muted)">Exacto (dinero)</td>
+            </tr>
+            <tr>
+              <td><code>FLOAT</code></td>
+              <td style="color:var(--text-muted)">Coma flotante</td>
+            </tr>
+            <tr>
+              <td><code>TINYINT(1)</code></td>
+              <td style="color:var(--text-muted)">Boolean (0/1)</td>
+            </tr>
+          </table>
+        </div>
+        <div class="card card-purple">
+          <h3 style="color:#c084fc">Texto</h3>
+          <table>
+            <tr>
+              <td><code>VARCHAR(n)</code></td>
+              <td style="color:var(--text-muted)">Variable, máx n</td>
+            </tr>
+            <tr>
+              <td><code>CHAR(n)</code></td>
+              <td style="color:var(--text-muted)">Fijo n caracteres</td>
+            </tr>
+            <tr>
+              <td><code>TEXT</code></td>
+              <td style="color:var(--text-muted)">Texto largo</td>
+            </tr>
+            <tr>
+              <td><code>ENUM(...)</code></td>
+              <td style="color:var(--text-muted)">Lista de valores</td>
+            </tr>
+            <tr>
+              <td><code>JSON</code></td>
+              <td style="color:var(--text-muted)">Documento JSON</td>
+            </tr>
+          </table>
+        </div>
+        <div class="card card-green">
+          <h3 style="color:var(--accent3)">Fecha / Tiempo</h3>
+          <table>
+            <tr>
+              <td><code>DATE</code></td>
+              <td style="color:var(--text-muted)">AAAA-MM-DD</td>
+            </tr>
+            <tr>
+              <td><code>TIME</code></td>
+              <td style="color:var(--text-muted)">HH:MM:SS</td>
+            </tr>
+            <tr>
+              <td><code>DATETIME</code></td>
+              <td style="color:var(--text-muted)">Fecha + hora</td>
+            </tr>
+            <tr>
+              <td><code>TIMESTAMP</code></td>
+              <td style="color:var(--text-muted)">UTC automático</td>
+            </tr>
+            <tr>
+              <td><code>YEAR</code></td>
+              <td style="color:var(--text-muted)">Solo el año</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="card card-amber" style="margin-top:16px">
+        <h3 style="color:var(--accent4)">💡 Reglas de oro</h3>
+        <ul style="list-style:none;padding:0;display:flex;gap:28px;flex-wrap:wrap">
+          <li style="color:var(--text-muted)">Usa <code>DECIMAL</code> para dinero, nunca <code>FLOAT</code></li>
+          <li style="color:var(--text-muted)"><code>VARCHAR</code> para texto variable, <code>CHAR</code> para códigos
+            fijos (ISO, DNI)</li>
+          <li style="color:var(--text-muted)"><code>DATETIME</code> para log de eventos; <code>DATE</code> para fechas
+            de nacimiento</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SLIDE — PKs, FKs y constraints -->
+    <div class="slide">
+      <span class="block-badge b2">Bloque 2 · Integridad</span>
+      <h2>Claves y restricciones</h2>
+      <div class="grid-2">
+        <pre><span class="lang-tag">SQL</span><span class="kw">CREATE TABLE</span> <span class="tbl">productos</span> (
+  id_producto <span class="dt">INT</span>            <span class="kw">AUTO_INCREMENT</span>,
+  nombre      <span class="dt">VARCHAR</span>(200)  <span class="kw">NOT NULL</span>,
+  precio      <span class="dt">DECIMAL</span>(10,2) <span class="kw">NOT NULL</span>,
+  stock       <span class="dt">INT</span>           <span class="kw">DEFAULT</span> <span class="num">0</span>,
+  id_categoria <span class="dt">INT</span>,
+  <span class="kw">PRIMARY KEY</span> (id_producto),
+  <span class="kw">CONSTRAINT</span> chk_precio <span class="kw">CHECK</span> (precio &gt; <span class="num">0</span>),
+  <span class="kw">CONSTRAINT</span> chk_stock  <span class="kw">CHECK</span> (stock &gt;= <span class="num">0</span>),
+  <span class="kw">FOREIGN KEY</span> (id_categoria)
+    <span class="kw">REFERENCES</span> <span class="tbl">categorias</span>(id_categoria)
+    <span class="kw">ON DELETE SET NULL</span>
+    <span class="kw">ON UPDATE CASCADE</span>
+);</pre>
+        <div>
+          <div class="card card-accent" style="margin-bottom:12px">
+            <h3>Constraints disponibles</h3>
+            <ul>
+              <li><span class="hi-blue">PRIMARY KEY</span> — unicidad + no nulo</li>
+              <li><span class="hi-blue">UNIQUE</span> — valor único por fila</li>
+              <li><span class="hi-blue">NOT NULL</span> — campo obligatorio</li>
+              <li><span class="hi-blue">DEFAULT</span> — valor por defecto</li>
+              <li><span class="hi-blue">CHECK</span> — condición lógica</li>
+              <li><span class="hi-blue">FOREIGN KEY</span> — integridad referencial</li>
+            </ul>
+          </div>
+          <div class="card card-purple">
+            <h3 style="color:#c084fc">ON DELETE / ON UPDATE</h3>
+            <ul>
+              <li><span class="hi-purple">CASCADE</span> — propaga el cambio</li>
+              <li><span class="hi-purple">SET NULL</span> — pone NULL en FK</li>
+              <li><span class="hi-purple">RESTRICT</span> — bloquea la operación</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE — DML INSERT / SELECT -->
+    <div class="slide">
+      <span class="block-badge b2">Bloque 2 · DML</span>
+      <h2>Insertar y consultar datos</h2>
+      <div class="grid-2">
+        <div>
+          <h3>INSERT — añadir registros</h3>
+          <pre><span class="lang-tag">SQL</span><span class="cmt">-- Un registro</span>
+<span class="kw">INSERT INTO</span> <span class="tbl">clientes</span> (nombre, email, telefono)
+<span class="kw">VALUES</span> (<span class="str">'Ana García'</span>, <span class="str">'ana@mail.com'</span>, <span class="str">'600123456'</span>);
+
+<span class="cmt">-- Varios registros</span>
+<span class="kw">INSERT INTO</span> <span class="tbl">productos</span> (nombre, precio, stock)
+<span class="kw">VALUES</span>
+  (<span class="str">'Teclado mecánico'</span>, <span class="num">89.99</span>, <span class="num">50</span>),
+  (<span class="str">'Ratón inalámbrico'</span>, <span class="num">34.50</span>, <span class="num">120</span>),
+  (<span class="str">'Monitor 27"'</span>, <span class="num">299.00</span>, <span class="num">15</span>);</pre>
+        </div>
+        <div>
+          <h3>SELECT — consultar registros</h3>
+          <pre><span class="lang-tag">SQL</span><span class="cmt">-- Todas las columnas</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">clientes</span>;
+
+<span class="cmt">-- Columnas específicas con filtro</span>
+<span class="kw">SELECT</span> nombre, email
+<span class="kw">FROM</span>   <span class="tbl">clientes</span>
+<span class="kw">WHERE</span>  ciudad = <span class="str">'Madrid'</span>
+<span class="kw">ORDER BY</span> nombre <span class="kw">ASC</span>
+<span class="kw">LIMIT</span> <span class="num">10</span>;
+
+<span class="cmt">-- Con alias</span>
+<span class="kw">SELECT</span> nombre <span class="kw">AS</span> cliente,
+       precio * <span class="num">1.21</span> <span class="kw">AS</span> precio_iva
+<span class="kw">FROM</span>   <span class="tbl">productos</span>
+<span class="kw">WHERE</span>  precio &gt; <span class="num">50</span>;</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE — UPDATE / DELETE / WHERE -->
+    <div class="slide">
+      <span class="block-badge b2">Bloque 2 · DML</span>
+      <h2>Modificar y eliminar datos</h2>
+      <div class="grid-2">
+        <div>
+          <h3>UPDATE — modificar registros</h3>
+          <pre><span class="lang-tag">SQL</span><span class="cmt">-- Actualizar un campo</span>
+<span class="kw">UPDATE</span> <span class="tbl">productos</span>
+<span class="kw">SET</span>    precio = <span class="num">79.99</span>,
+       stock  = stock - <span class="num">1</span>
+<span class="kw">WHERE</span>  id_producto = <span class="num">1</span>;
+
+<span class="cmt">-- Actualizar múltiples filas</span>
+<span class="kw">UPDATE</span> <span class="tbl">productos</span>
+<span class="kw">SET</span>    precio = precio * <span class="num">0.9</span>
+<span class="kw">WHERE</span>  stock > <span class="num">100</span>;</pre>
+
+          <div
+            style="background:#2d0a0a;border-left:3px solid var(--red);border-radius:0 6px 6px 0;padding:12px 14px;margin-top:12px">
+            <p style="color:var(--red);font-size:.85rem;margin:0">⚠️ <strong>Siempre usa WHERE</strong> en UPDATE y
+              DELETE o modificarás <em>todas</em> las filas.</p>
+          </div>
+        </div>
+        <div>
+          <h3>DELETE — eliminar registros</h3>
+          <pre><span class="lang-tag">SQL</span><span class="cmt">-- Eliminar un registro</span>
+<span class="kw">DELETE FROM</span> <span class="tbl">clientes</span>
+<span class="kw">WHERE</span> id_cliente = <span class="num">5</span>;
+
+<span class="cmt">-- Eliminar con condición</span>
+<span class="kw">DELETE FROM</span> <span class="tbl">pedidos</span>
+<span class="kw">WHERE</span> fecha < <span class="str">'2023-01-01'</span>;
+
+<span class="cmt">-- Vaciar tabla (más rápido)</span>
+<span class="kw">TRUNCATE TABLE</span> <span class="tbl">logs_temp</span>;</pre>
+
+          <h3 style="margin-top:16px">Cláusula WHERE</h3>
+          <pre><span class="lang-tag">SQL</span><span class="kw">WHERE</span> precio <span class="kw">BETWEEN</span> <span class="num">10</span> <span class="kw">AND</span> <span class="num">50</span>
+<span class="kw">WHERE</span> nombre <span class="kw">LIKE</span> <span class="str">'%García%'</span>
+<span class="kw">WHERE</span> ciudad <span class="kw">IN</span> (<span class="str">'Madrid'</span>, <span class="str">'Barcelona'</span>)
+<span class="kw">WHERE</span> telefono <span class="kw">IS NOT NULL</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE — Ejercicio 2 -->
+    <div class="slide">
+      <span class="block-badge b2">Bloque 2</span>
+      <h2>Ejercicio 2 — Crear y poblar la BD Tienda</h2>
+      <div class="exercise">
+        <div class="ex-title">🏋 Ejercicio práctico — MySQL Workbench</div>
+        <ul>
+          <li>Crea la BD <code>tienda</code> con las 4 tablas del diagrama ER</li>
+          <li>Inserta al menos <strong>3 clientes</strong>, <strong>5 productos</strong> y <strong>3 pedidos</strong>
+          </li>
+          <li>Realiza un <code>SELECT</code> que muestre todos los clientes de Madrid</li>
+          <li>Actualiza el stock del producto con mayor precio</li>
+        </ul>
+      </div>
+      <pre style="margin-top:16px"><span class="lang-tag">SQL</span><span class="cmt">-- Script de partida — crea la tabla pedidos</span>
+<span class="kw">CREATE TABLE</span> <span class="tbl">pedidos</span> (
+  id_pedido  <span class="dt">INT</span>            <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+  id_cliente <span class="dt">INT</span>            <span class="kw">NOT NULL</span>,
+  fecha      <span class="dt">DATETIME</span>       <span class="kw">DEFAULT</span> <span class="fn">NOW</span>(),
+  estado     <span class="dt">ENUM</span>(<span class="str">'pendiente'</span>,<span class="str">'enviado'</span>,<span class="str">'entregado'</span>) <span class="kw">DEFAULT</span> <span class="str">'pendiente'</span>,
+  total      <span class="dt">DECIMAL</span>(10,2)  <span class="kw">DEFAULT</span> <span class="num">0.00</span>,
+  <span class="kw">FOREIGN KEY</span> (id_cliente) <span class="kw">REFERENCES</span> <span class="tbl">clientes</span>(id_cliente) <span class="kw">ON DELETE CASCADE</span>
+);</pre>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     BLOQUE 3
+═══════════════════════════════════════════ -->
+    <div class="slide sep-slide">
+      <span class="sep-num">03</span>
+      <span class="block-badge b3" style="margin-bottom:16px">Bloque 3 · 30 min</span>
+      <h2 class="hi-green">Consultas Avanzadas</h2>
+      <p style="max-width:560px;margin:12px auto 0">JOINs · Funciones de agregación · GROUP BY · HAVING · Subconsultas
+      </p>
+    </div>
+
+    <!-- SLIDE — JOINs -->
+    <div class="slide">
+      <span class="block-badge b3">Bloque 3 · JOINs</span>
+      <h2>JOINs — Combinar tablas</h2>
+      <div class="grid-2">
+        <div>
+          <div class="card card-green" style="margin-bottom:14px">
+            <h3 style="color:var(--accent3)">Tipos de JOIN</h3>
+            <ul>
+              <li><span class="hi-green">INNER JOIN</span> — solo filas con coincidencia en <em>ambas</em> tablas</li>
+              <li><span class="hi-green">LEFT JOIN</span> — <em>todas</em> las filas de la tabla izquierda (<code>FROM</code>); <code>NULL</code> si no hay coincidencia en la derecha</li>
+              <li><span class="hi-green">RIGHT JOIN</span> — <em>todas</em> las filas de la tabla derecha (<code>JOIN</code>); <code>NULL</code> si no hay coincidencia en la izquierda</li>
+              <li><span class="hi-green">CROSS JOIN</span> — producto cartesiano (raro)</li>
+            </ul>
+          </div>
+          <pre><span class="lang-tag">SQL</span><span class="cmt">-- Clientes con sus pedidos (INNER)</span>
+<span class="kw">SELECT</span> c.nombre, p.fecha, p.total
+<span class="kw">FROM</span>   <span class="tbl">clientes</span>  <span class="tbl">c</span>
+<span class="kw">INNER JOIN</span> <span class="tbl">pedidos</span> <span class="tbl">p</span>
+  <span class="kw">ON</span> c.id_cliente = p.id_cliente
+<span class="kw">ORDER BY</span> p.fecha <span class="kw">DESC</span>;</pre>
+        </div>
+        <div>
+          <pre><span class="lang-tag">SQL</span><span class="cmt">-- Clientes SIN pedidos (LEFT JOIN)</span>
+<span class="kw">SELECT</span> c.nombre, c.email
+<span class="kw">FROM</span>   <span class="tbl">clientes</span>  <span class="tbl">c</span>
+<span class="kw">LEFT JOIN</span> <span class="tbl">pedidos</span> <span class="tbl">p</span>
+  <span class="kw">ON</span> c.id_cliente = p.id_cliente
+<span class="kw">WHERE</span>  p.id_pedido <span class="kw">IS NULL</span>;
+
+<span class="cmt">-- 3 tablas: pedido + cliente + producto</span>
+<span class="kw">SELECT</span> c.nombre, pr.nombre <span class="kw">AS</span> producto,
+       d.cantidad, d.precio_unit
+<span class="kw">FROM</span>   <span class="tbl">pedidos</span>         <span class="tbl">p</span>
+<span class="kw">JOIN</span>   <span class="tbl">clientes</span>        <span class="tbl">c</span>  <span class="kw">ON</span> p.id_cliente  = c.id_cliente
+<span class="kw">JOIN</span>   <span class="tbl">pedido_detalle</span>  <span class="tbl">d</span>  <span class="kw">ON</span> p.id_pedido   = d.id_pedido
+<span class="kw">JOIN</span>   <span class="tbl">productos</span>       <span class="tbl">pr</span> <span class="kw">ON</span> d.id_producto = pr.id_producto
+<span class="kw">WHERE</span>  p.estado = <span class="str">'entregado'</span>;</pre>
+        </div>
+      </div>
+      <div style="margin-top:14px;background:#0a1a0a;border:1px solid #1a3a1a;border-radius:10px;padding:12px 20px;font-size:.86rem">
+        <strong style="color:var(--accent3)">Ejemplo visual — LEFT JOIN:</strong>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap">
+          <div style="background:#064e3b44;border:1px solid var(--accent3);border-radius:6px;padding:5px 12px;color:var(--accent3)">clientes <span style="color:#6272a4;font-size:.78rem">(FROM · izquierda)</span></div>
+          <span style="color:#ff79c6;font-weight:700">LEFT JOIN</span>
+          <div style="background:#1a1d2e;border:1px solid #334155;border-radius:6px;padding:5px 12px;color:var(--text-muted)">pedidos <span style="font-size:.78rem">(JOIN · derecha)</span></div>
+          <span style="color:var(--text-muted)">→</span>
+          <span style="color:var(--text)">Devuelve <strong>todos los clientes</strong>; los que no tienen pedidos aparecen con <code style="color:var(--red)">NULL</code> en las columnas de pedidos.</span>
+        </div>
+        <p style="margin-top:8px;color:#6272a4;font-size:.8rem"><strong style="color:var(--text-muted)">RIGHT JOIN</strong> hace lo mismo pero garantizando <em>todos</em> los registros de la tabla derecha. En la práctica se usa poco; es más legible invertir el orden y usar LEFT JOIN.</p>
+      </div>
+    </div>
+
+    <!-- SLIDE — GROUP BY y funciones de agregación -->
+    <div class="slide">
+      <span class="block-badge b3">Bloque 3 · Agregación</span>
+      <h2>GROUP BY &amp; Funciones de agregación</h2>
+      <div class="grid-2">
+        <div>
+          <div class="card card-green" style="margin-bottom:14px">
+            <h3 style="color:var(--accent3)">Funciones de agregación</h3>
+            <table>
+              <tr>
+                <td><code><span class="fn">COUNT</span>(*)</code></td>
+                <td style="color:var(--text-muted)">Número de filas</td>
+              </tr>
+              <tr>
+                <td><code><span class="fn">SUM</span>(col)</code></td>
+                <td style="color:var(--text-muted)">Suma</td>
+              </tr>
+              <tr>
+                <td><code><span class="fn">AVG</span>(col)</code></td>
+                <td style="color:var(--text-muted)">Media aritmética</td>
+              </tr>
+              <tr>
+                <td><code><span class="fn">MAX</span>(col)</code></td>
+                <td style="color:var(--text-muted)">Valor máximo</td>
+              </tr>
+              <tr>
+                <td><code><span class="fn">MIN</span>(col)</code></td>
+                <td style="color:var(--text-muted)">Valor mínimo</td>
+              </tr>
+            </table>
+          </div>
+          <pre><span class="lang-tag">SQL</span><span class="cmt">-- Total de ventas por cliente</span>
+<span class="kw">SELECT</span>   c.nombre,
+         <span class="fn">COUNT</span>(p.id_pedido)  <span class="kw">AS</span> num_pedidos,
+         <span class="fn">SUM</span>(p.total)        <span class="kw">AS</span> total_gastado,
+         <span class="fn">AVG</span>(p.total)        <span class="kw">AS</span> ticket_medio
+<span class="kw">FROM</span>     <span class="tbl">clientes</span> <span class="tbl">c</span>
+<span class="kw">JOIN</span>     <span class="tbl">pedidos</span>  <span class="tbl">p</span> <span class="kw">ON</span> c.id_cliente = p.id_cliente
+<span class="kw">GROUP BY</span> c.id_cliente, c.nombre
+<span class="kw">ORDER BY</span> total_gastado <span class="kw">DESC</span>;</pre>
+        </div>
+        <div>
+          <h3 style="color:var(--accent3)">HAVING — filtrar grupos</h3>
+          <p style="font-size:.9rem;color:var(--text-muted);margin-bottom:10px"><code>WHERE</code> filtra filas.
+            <code>HAVING</code> filtra <strong>grupos ya calculados</strong>.</p>
+          <pre><span class="lang-tag">SQL</span><span class="cmt">-- Clientes con más de 3 pedidos</span>
+<span class="kw">SELECT</span>   c.nombre,
+         <span class="fn">COUNT</span>(*) <span class="kw">AS</span> total_pedidos
+<span class="kw">FROM</span>     <span class="tbl">clientes</span> <span class="tbl">c</span>
+<span class="kw">JOIN</span>     <span class="tbl">pedidos</span>  <span class="tbl">p</span>
+         <span class="kw">ON</span> c.id_cliente = p.id_cliente
+<span class="kw">GROUP BY</span> c.id_cliente, c.nombre
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(*) > <span class="num">3</span>
+<span class="kw">ORDER BY</span> total_pedidos <span class="kw">DESC</span>;</pre>
+          <p style="margin-top:12px;font-size:.85rem;color:var(--text-muted)">Orden de ejecución SQL:<br>
+            <code>FROM</code> → <code>JOIN</code> → <code>WHERE</code> → <code>GROUP BY</code> → <code>HAVING</code> →
+            <code>SELECT</code> → <code>ORDER BY</code> → <code>LIMIT</code>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE — Subconsultas -->
+    <div class="slide">
+      <span class="block-badge b3">Bloque 3 · Subconsultas</span>
+      <h2>Subconsultas</h2>
+      <div class="grid-2">
+        <div>
+          <p style="margin-bottom:12px">Una <strong>subconsulta</strong> es un <code>SELECT</code> anidado dentro de
+            otra sentencia.</p>
+          <pre><span class="lang-tag">SQL</span><span class="cmt">-- Productos más caros que la media</span>
+<span class="kw">SELECT</span> nombre, precio
+<span class="kw">FROM</span>   <span class="tbl">productos</span>
+<span class="kw">WHERE</span>  precio > (
+  <span class="kw">SELECT</span> <span class="fn">AVG</span>(precio) <span class="kw">FROM</span> <span class="tbl">productos</span>
+);
+
+<span class="cmt">-- Clientes que han comprado alguna vez</span>
+<span class="kw">SELECT</span> nombre
+<span class="kw">FROM</span>   <span class="tbl">clientes</span>
+<span class="kw">WHERE</span>  id_cliente <span class="kw">IN</span> (
+  <span class="kw">SELECT DISTINCT</span> id_cliente
+  <span class="kw">FROM</span>   <span class="tbl">pedidos</span>
+  <span class="kw">WHERE</span>  estado = <span class="str">'entregado'</span>
+);</pre>
+        </div>
+        <div>
+          <pre><span class="lang-tag">SQL</span><span class="cmt">-- Subconsulta en FROM (tabla derivada)</span>
+<span class="kw">SELECT</span> nombre, total_gastado
+<span class="kw">FROM</span> (
+  <span class="kw">SELECT</span> c.nombre,
+         <span class="fn">SUM</span>(p.total) <span class="kw">AS</span> total_gastado
+  <span class="kw">FROM</span>   <span class="tbl">clientes</span> <span class="tbl">c</span>
+  <span class="kw">JOIN</span>   <span class="tbl">pedidos</span>  <span class="tbl">p</span>
+         <span class="kw">ON</span> c.id_cliente = p.id_cliente
+  <span class="kw">GROUP BY</span> c.id_cliente, c.nombre
+) <span class="kw">AS</span> <span class="tbl">resumen</span>
+<span class="kw">WHERE</span> total_gastado > <span class="num">500</span>;</pre>
+
+          <div class="card card-green" style="margin-top:12px">
+            <h3 style="color:var(--accent3)">¿Subconsulta o JOIN?</h3>
+            <ul>
+              <li>JOIN suele ser más eficiente</li>
+              <li>Subconsulta = más legible en ciertos casos</li>
+              <li>Usa <code>EXISTS</code> en lugar de <code>IN</code> para grandes datasets</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE — Ejercicio 3 -->
+    <div class="slide">
+      <span class="block-badge b3">Bloque 3</span>
+      <h2>Ejercicio 3 — Consultas sobre la BD Tienda</h2>
+      <div class="exercise">
+        <div class="ex-title">🏋 Ejercicio práctico</div>
+        <ul>
+          <li>Lista todos los pedidos con el nombre del cliente, fecha y total, <strong>ordenados por total
+              descendente</strong></li>
+          <li>Obtén el <strong>producto más vendido</strong> (mayor suma de cantidades)</li>
+          <li>Muestra los <strong>clientes que NO han hecho ningún pedido</strong> (LEFT JOIN + NULL)</li>
+          <li>Calcula el <strong>total de ingresos por mes</strong> usando <code>GROUP BY MONTH(fecha)</code></li>
+          <li><em>Extra:</em> Muestra los productos cuyo stock es inferior a la media</li>
+        </ul>
+      </div>
+      <pre style="margin-top:14px"><span class="lang-tag">SQL</span><span class="cmt">-- Pista: producto más vendido</span>
+<span class="kw">SELECT</span>   pr.nombre,
+         <span class="fn">SUM</span>(d.cantidad) <span class="kw">AS</span> unidades_vendidas
+<span class="kw">FROM</span>     <span class="tbl">pedido_detalle</span> <span class="tbl">d</span>
+<span class="kw">JOIN</span>     <span class="tbl">productos</span>      <span class="tbl">pr</span> <span class="kw">ON</span> d.id_producto = pr.id_producto
+<span class="kw">GROUP BY</span> pr.id_producto, pr.nombre
+<span class="kw">ORDER BY</span> unidades_vendidas <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">1</span>;</pre>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     BLOQUE 4
+═══════════════════════════════════════════ -->
+    <div class="slide sep-slide">
+      <span class="sep-num">04</span>
+      <span class="block-badge b4" style="margin-bottom:16px">Bloque 4 · 20 min</span>
+      <h2 class="hi-amber">MySQL + Python</h2>
+      <p style="max-width:560px;margin:12px auto 0">Conectar nuestra BD con el curso de Python</p>
+    </div>
+
+    <!-- SLIDE — Conexión con mysql-connector -->
+    <div class="slide">
+      <span class="block-badge b4">Bloque 4 · Conexión</span>
+      <h2>Conectar MySQL desde Python</h2>
+      <div class="grid-2">
+        <div>
+          <pre><span class="lang-tag">terminal</span>pip install mysql-connector-python</pre>
+          <pre style="margin-top:10px"><span class="lang-tag">Python</span><span class="py-kw">import</span> mysql.connector
+
+<span class="cmt"># Crear conexión</span>
+conn = mysql.connector.<span class="py-fn">connect</span>(
+    host=<span class="py-str">"localhost"</span>,
+    port=<span class="py-num">3306</span>,
+    user=<span class="py-str">"root"</span>,
+    password=<span class="py-str">"tu_password"</span>,
+    database=<span class="py-str">"tienda"</span>
+)
+
+cursor = conn.<span class="py-fn">cursor</span>(dictionary=<span class="py-kw">True</span>)
+
+<span class="cmt"># Consulta</span>
+cursor.<span class="py-fn">execute</span>(<span class="py-str">"SELECT * FROM clientes"</span>)
+clientes = cursor.<span class="py-fn">fetchall</span>()
+
+<span class="py-kw">for</span> c <span class="py-kw">in</span> clientes:
+    <span class="py-fn">print</span>(c[<span class="py-str">"nombre"</span>], c[<span class="py-str">"email"</span>])
+
+cursor.<span class="py-fn">close</span>()
+conn.<span class="py-fn">close</span>()</pre>
+        </div>
+        <div>
+          <div class="card card-amber" style="margin-bottom:12px">
+            <h3 style="color:var(--accent4)">Métodos del cursor</h3>
+            <ul>
+              <li><span class="hi-amber">fetchone()</span> — una fila</li>
+              <li><span class="hi-amber">fetchall()</span> — todas las filas</li>
+              <li><span class="hi-amber">fetchmany(n)</span> — n filas</li>
+              <li><span class="hi-amber">rowcount</span> — filas afectadas</li>
+            </ul>
+          </div>
+          <pre><span class="lang-tag">Python</span><span class="cmt"># Context manager (recomendado)</span>
+<span class="py-kw">with</span> mysql.connector.<span class="py-fn">connect</span>(
+    host=<span class="py-str">"localhost"</span>,
+    user=<span class="py-str">"root"</span>,
+    password=<span class="py-str">"pass"</span>,
+    database=<span class="py-str">"tienda"</span>
+) <span class="py-kw">as</span> conn:
+    <span class="py-kw">with</span> conn.<span class="py-fn">cursor</span>(dictionary=<span class="py-kw">True</span>) <span class="py-kw">as</span> cur:
+        cur.<span class="py-fn">execute</span>(
+            <span class="py-str">"SELECT * FROM productos WHERE precio > %s"</span>,
+            (<span class="py-num">50</span>,)  <span class="cmt"># parámetro seguro</span>
+        )
+        <span class="py-fn">print</span>(cur.<span class="py-fn">fetchall</span>())</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE — CRUD desde Python -->
+    <div class="slide">
+      <span class="block-badge b4">Bloque 4 · CRUD</span>
+      <h2>CRUD completo desde Python</h2>
+      <div class="grid-2">
+        <pre><span class="lang-tag">Python</span><span class="cmt"># CREATE — insertar con parámetros</span>
+<span class="py-kw">def</span> <span class="py-fn">crear_cliente</span>(conn, nombre, email):
+    sql = <span class="py-str">"""INSERT INTO clientes
+              (nombre, email)
+              VALUES (%s, %s)"""</span>
+    <span class="py-kw">with</span> conn.<span class="py-fn">cursor</span>() <span class="py-kw">as</span> cur:
+        cur.<span class="py-fn">execute</span>(sql, (nombre, email))
+        conn.<span class="py-fn">commit</span>()
+        <span class="py-kw">return</span> cur.lastrowid
+
+<span class="cmt"># READ</span>
+<span class="py-kw">def</span> <span class="py-fn">obtener_clientes</span>(conn):
+    <span class="py-kw">with</span> conn.<span class="py-fn">cursor</span>(dictionary=<span class="py-kw">True</span>) <span class="py-kw">as</span> cur:
+        cur.<span class="py-fn">execute</span>(<span class="py-str">"SELECT * FROM clientes"</span>)
+        <span class="py-kw">return</span> cur.<span class="py-fn">fetchall</span>()</pre>
+
+        <pre><span class="lang-tag">Python</span><span class="cmt"># UPDATE</span>
+<span class="py-kw">def</span> <span class="py-fn">actualizar_email</span>(conn, cliente_id, nuevo_email):
+    sql = <span class="py-str">"""UPDATE clientes
+              SET email = %s
+              WHERE id_cliente = %s"""</span>
+    <span class="py-kw">with</span> conn.<span class="py-fn">cursor</span>() <span class="py-kw">as</span> cur:
+        cur.<span class="py-fn">execute</span>(sql, (nuevo_email, cliente_id))
+        conn.<span class="py-fn">commit</span>()
+
+<span class="cmt"># DELETE</span>
+<span class="py-kw">def</span> <span class="py-fn">eliminar_cliente</span>(conn, cliente_id):
+    sql = <span class="py-str">"DELETE FROM clientes WHERE id_cliente = %s"</span>
+    <span class="py-kw">with</span> conn.<span class="py-fn">cursor</span>() <span class="py-kw">as</span> cur:
+        cur.<span class="py-fn">execute</span>(sql, (cliente_id,))
+        conn.<span class="py-fn">commit</span>()</pre>
+      </div>
+      <div
+        style="background:#2d0a0a;border-left:3px solid var(--red);border-radius:0 6px 6px 0;padding:10px 14px;margin-top:12px">
+        <p style="color:var(--red);font-size:.85rem;margin:0">🔒 <strong>Usa siempre parámetros</strong>
+          <code>(%s, valor)</code> — nunca concatenes strings con datos del usuario (SQL Injection)</p>
+      </div>
+    </div>
+
+    <!-- SLIDE — SQLAlchemy -->
+    <div class="slide">
+      <span class="block-badge b4">Bloque 4 · ORM</span>
+      <h2>Introducción a SQLAlchemy</h2>
+      <div class="grid-2">
+        <div>
+          <p style="margin-bottom:12px"><strong>SQLAlchemy</strong> es el ORM estándar de Python. Permite trabajar con
+            la BD usando <strong>clases Python</strong> en lugar de SQL puro.</p>
+          <pre><span class="lang-tag">terminal</span>pip install sqlalchemy pymysql</pre>
+          <pre
+            style="margin-top:10px"><span class="lang-tag">Python</span><span class="py-kw">from</span> sqlalchemy <span class="py-kw">import</span> (
+    create_engine, Column,
+    Integer, String, Numeric
+)
+<span class="py-kw">from</span> sqlalchemy.orm <span class="py-kw">import</span> (
+    declarative_base, Session
+)
+
+Base = <span class="py-fn">declarative_base</span>()
+
+<span class="py-kw">class</span> <span class="py-cls">Producto</span>(Base):
+    __tablename__ = <span class="py-str">"productos"</span>
+
+    id_producto = <span class="py-fn">Column</span>(<span class="py-cls">Integer</span>, primary_key=<span class="py-kw">True</span>)
+    nombre      = <span class="py-fn">Column</span>(<span class="py-cls">String</span>(<span class="py-num">200</span>), nullable=<span class="py-kw">False</span>)
+    precio      = <span class="py-fn">Column</span>(<span class="py-cls">Numeric</span>(<span class="py-num">10</span>,<span class="py-num">2</span>))
+    stock       = <span class="py-fn">Column</span>(<span class="py-cls">Integer</span>, default=<span class="py-num">0</span>)</pre>
+        </div>
+        <div>
+          <pre><span class="lang-tag">Python</span><span class="cmt"># Conexión</span>
+engine = <span class="py-fn">create_engine</span>(
+    <span class="py-str">"mysql+pymysql://root:pass@localhost/tienda"</span>,
+    echo=<span class="py-kw">False</span>
+)
+
+<span class="cmt"># Consultar</span>
+<span class="py-kw">with</span> <span class="py-fn">Session</span>(engine) <span class="py-kw">as</span> session:
+    productos = (
+        session.query(<span class="py-cls">Producto</span>)
+               .<span class="py-fn">filter</span>(<span class="py-cls">Producto</span>.precio > <span class="py-num">50</span>)
+               .<span class="py-fn">order_by</span>(<span class="py-cls">Producto</span>.precio.<span class="py-fn">desc</span>())
+               .<span class="py-fn">all</span>()
+    )
+    <span class="py-kw">for</span> p <span class="py-kw">in</span> productos:
+        <span class="py-fn">print</span>(p.nombre, p.precio)
+
+<span class="cmt"># Insertar</span>
+<span class="py-kw">with</span> <span class="py-fn">Session</span>(engine) <span class="py-kw">as</span> session:
+    nuevo = <span class="py-cls">Producto</span>(
+        nombre=<span class="py-str">"Auriculares BT"</span>,
+        precio=<span class="py-num">59.99</span>,
+        stock=<span class="py-num">30</span>
+    )
+    session.<span class="py-fn">add</span>(nuevo)
+    session.<span class="py-fn">commit</span>()</pre>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px">
+        <div style="background:#1a1d2e;border:1px solid var(--accent4);border-radius:10px;padding:14px 18px">
+          <strong style="color:var(--accent4)">¿Qué hace <code>declarative_base()</code>?</strong>
+          <p style="margin-top:6px;font-size:.87rem">Crea una clase base de la que heredan todos los modelos. SQLAlchemy la usa como registro central: cada subclase le dice al ORM <em>"existe una tabla con esta estructura"</em>. La asignación <code>Base = declarative_base()</code> solo ocurre una vez en el proyecto.</p>
+        </div>
+        <div style="background:#1a1d2e;border:1px solid var(--accent3);border-radius:10px;padding:14px 18px">
+          <strong style="color:var(--accent3)">¿Necesito crear la tabla en Workbench?</strong>
+          <p style="margin-top:6px;font-size:.87rem"><strong>No.</strong> Esta es una de las ventajas del ORM: defines la tabla como una clase Python y la creas en la BD con una sola línea. No hace falta tocar Workbench ni escribir <code>CREATE TABLE</code> a mano.</p>
+          <pre style="margin-top:8px;padding:8px 12px;font-size:.8rem"><span class="cmt"># Crea en la BD todas las tablas definidas como clases</span>
+<span class="py-fn">Base</span>.metadata.<span class="py-fn">create_all</span>(engine)</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE — Ejercicio 4 -->
+    <div class="slide">
+      <span class="block-badge b4">Bloque 4</span>
+      <h2>Ejercicio 4 — CRUD con Python</h2>
+      <div class="exercise">
+        <div class="ex-title">🏋 Ejercicio práctico</div>
+        <ul>
+          <li>Crea un script Python que se <strong>conecte a la BD tienda</strong> con
+            <code>mysql-connector-python</code></li>
+          <li>Implementa una función <code>listar_productos()</code> que muestre todos los productos con su precio</li>
+          <li>Implementa <code>crear_pedido(id_cliente, productos)</code> que inserte un pedido y sus líneas de detalle
+            en una <strong>transacción</strong></li>
+          <li><em>Extra:</em> Refactoriza usando SQLAlchemy y modelos ORM</li>
+        </ul>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:14px">
+        <div style="background:#1a1d2e;border:1px solid var(--accent);border-radius:10px;padding:16px 18px">
+          <strong style="color:var(--accent)">¿Qué hace <code>@contextmanager</code>?</strong>
+          <p style="margin-top:8px;font-size:.87rem">Hace que <code>get_connection()</code> se pueda usar con <code>with</code>:</p>
+          <pre style="margin-top:8px;padding:8px 12px;font-size:.82rem;background:#0d1117"><span class="py-kw">with</span> <span class="py-fn">get_connection</span>() <span class="py-kw">as</span> conn:
+    <span class="cmt"># aquí usas conn con seguridad</span></pre>
+          <p style="margin-top:10px;font-size:.87rem">Python ejecuta la función en <strong>3 fases automáticas</strong>:</p>
+          <ol style="padding-left:18px;margin-top:6px;font-size:.85rem;line-height:2">
+            <li><span style="color:var(--accent3)">Abre la conexión</span> — el código <em>antes</em> del <code>yield</code></li>
+            <li><span style="color:var(--accent4)">Ejecuta tu código</span> — el cuerpo del bloque <code>with</code></li>
+            <li><span style="color:var(--red)">Cierra siempre</span> — el <code>finally</code>, aunque haya un error en el paso 2</li>
+          </ol>
+          <p style="margin-top:8px;font-size:.82rem;color:#6272a4">Sin esto tendrías que cerrar <code>conn.close()</code> tú mismo, y si el código falla a mitad, la conexión quedaría abierta.</p>
+          <div style="margin-top:12px;border-top:1px solid #334155;padding-top:12px">
+            <strong style="color:var(--accent4)">¿Qué es <code>DB_CONFIG</code>?</strong>
+            <p style="margin-top:6px;font-size:.85rem">Un diccionario con los datos de conexión a la BD. Se define una vez arriba del script y se reutiliza en cualquier parte.</p>
+            <p style="margin-top:6px;font-size:.85rem">El <code style="color:var(--accent4)">**</code> delante lo <em>desempaqueta</em>: en vez de escribir cada parámetro suelto, Python los pasa todos a la vez:</p>
+            <pre style="margin-top:6px;padding:7px 10px;font-size:.78rem;background:#0d1117"><span class="cmt"># Equivale a escribir esto:</span>
+mysql.connector.<span class="py-fn">connect</span>(
+    host=<span class="py-str">"localhost"</span>, user=<span class="py-str">"root"</span>,
+    password=<span class="py-str">"****"</span>, database=<span class="py-str">"tienda"</span>
+)</pre>
+          </div>
+        </div>
+        <pre><span class="lang-tag">Python</span><span class="cmt"># Estructura sugerida del script</span>
+<span class="py-kw">import</span> mysql.connector
+<span class="py-kw">from</span> contextlib <span class="py-kw">import</span> contextmanager
+
+<span class="py-kw">DB_CONFIG</span> = {<span class="py-str">"host"</span>:<span class="py-str">"localhost"</span>, <span class="py-str">"user"</span>:<span class="py-str">"root"</span>,
+             <span class="py-str">"password"</span>:<span class="py-str">"****"</span>, <span class="py-str">"database"</span>:<span class="py-str">"tienda"</span>}
+
+<span class="py-kw">@</span><span class="py-fn">contextmanager</span>
+<span class="py-kw">def</span> <span class="py-fn">get_connection</span>():
+    conn = mysql.connector.<span class="py-fn">connect</span>(**<span class="py-kw">DB_CONFIG</span>)
+    <span class="py-kw">try</span>:
+        <span class="py-kw">yield</span> conn
+    <span class="py-kw">finally</span>:
+        conn.<span class="py-fn">close</span>()</pre>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     SLIDE FINAL — RESUMEN
+═══════════════════════════════════════════ -->
+    <div class="slide">
+      <span class="block-badge btitle">Resumen</span>
+      <h2>Lo que hemos aprendido hoy</h2>
+      <div class="grid-2">
+        <div>
+          <div class="card card-accent" style="margin-bottom:12px">
+            <h3>Bloque 1 — Fundamentos</h3>
+            <ul>
+              <li>Modelo relacional y propiedades ACID</li>
+              <li>Diseño ER: entidades, relaciones, cardinalidades</li>
+              <li>Terminología: PK, FK, tabla, esquema</li>
+            </ul>
+          </div>
+          <div class="card card-purple">
+            <h3 style="color:#c084fc">Bloque 2 — SQL base</h3>
+            <ul>
+              <li>DDL: CREATE, ALTER, DROP</li>
+              <li>Tipos de datos y constraints</li>
+              <li>DML: INSERT, SELECT, UPDATE, DELETE</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="card card-green" style="margin-bottom:12px">
+            <h3 style="color:var(--accent3)">Bloque 3 — Consultas avanzadas</h3>
+            <ul>
+              <li>JOINs: INNER, LEFT, RIGHT</li>
+              <li>GROUP BY + funciones de agregación</li>
+              <li>HAVING y subconsultas</li>
+            </ul>
+          </div>
+          <div class="card card-amber">
+            <h3 style="color:var(--accent4)">Bloque 4 — Python</h3>
+            <ul>
+              <li>mysql-connector-python</li>
+              <li>CRUD seguro con parámetros</li>
+              <li>SQLAlchemy ORM básico</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:20px;text-align:center">
+        <p style="font-size:1.1rem">🐍 El siguiente paso: integrar todo esto en el <strong>curso de Python</strong></p>
+        <div class="pill-list" style="justify-content:center;margin-top:12px">
+          <span class="pill pill-amber">pandas + SQL</span>
+          <span class="pill pill-amber">Flask + SQLAlchemy</span>
+          <span class="pill pill-amber">FastAPI + BD</span>
+          <span class="pill pill-amber">Migraciones con Alembic</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     SLIDE — RECURSOS
+═══════════════════════════════════════════ -->
+    <div class="slide">
+      <span class="block-badge btitle">Referencias</span>
+      <h2>Recursos y próximos pasos</h2>
+      <div class="grid-2">
+        <div>
+          <div class="card card-accent" style="margin-bottom:12px">
+            <h3>Documentación oficial</h3>
+            <ul>
+              <li>MySQL 8.0 Reference Manual</li>
+              <li>MySQL Workbench User Guide</li>
+              <li>SQLAlchemy 2.0 Docs</li>
+              <li>mysql-connector-python Docs</li>
+            </ul>
+          </div>
+          <div class="card card-green">
+            <h3 style="color:var(--accent3)">Práctica</h3>
+            <ul>
+              <li>SQLZoo — ejercicios interactivos</li>
+              <li>LeetCode — sección Database</li>
+              <li>HackerRank — SQL challenges</li>
+              <li>db-fiddle.com — SQL online</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="card card-amber" style="margin-bottom:12px">
+            <h3 style="color:var(--accent4)">Próximos pasos</h3>
+            <ul>
+              <li>Índices y optimización de consultas</li>
+              <li>Vistas (VIEWS) y procedimientos almacenados</li>
+              <li>Transacciones y control de concurrencia</li>
+              <li>Backup y restauración con mysqldump</li>
+              <li>ORM avanzado con SQLAlchemy 2.0</li>
+            </ul>
+          </div>
+          <div class="card card-purple">
+            <h3 style="color:#c084fc">Herramientas del stack Python</h3>
+            <ul>
+              <li>mysql-connector-python</li>
+              <li>PyMySQL / aiomysql (async)</li>
+              <li>SQLAlchemy 2.0 + Alembic</li>
+              <li>pandas read_sql()</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /slideshow -->
+
+  <!-- NAVIGATION -->
+  <div id="nav">
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">&#8592;</button>
+    <span id="counter">1 / 1</span>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">&#8594;</button>
+  </div>
+
+  <div id="hint"><kbd>←</kbd> <kbd>→</kbd> para navegar &nbsp;·&nbsp; <kbd>F</kbd> pantalla completa</div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    let current = 0;
+
+    function showSlide(n) {
+      slides[current].classList.remove('active');
+      current = Math.max(0, Math.min(n, slides.length - 1));
+      slides[current].classList.add('active');
+      document.getElementById('counter').textContent = `${current + 1} / ${slides.length}`;
+      document.getElementById('progress').style.width = `${((current + 1) / slides.length) * 100}%`;
+      document.getElementById('prevBtn').style.opacity = current === 0 ? '.3' : '1';
+      document.getElementById('nextBtn').style.opacity = current === slides.length - 1 ? '.3' : '1';
+    }
+
+    function changeSlide(dir) { showSlide(current + dir); }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') changeSlide(1);
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+      if (e.key === 'f' || e.key === 'F') {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+      }
+      if (e.key === 'Home') showSlide(0);
+      if (e.key === 'End') showSlide(slides.length - 1);
+    });
+
+    // Touch/swipe
+    let touchX = 0;
+    document.addEventListener('touchstart', e => touchX = e.touches[0].clientX);
+    document.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 50) changeSlide(dx < 0 ? 1 : -1);
+    });
+
+    showSlide(0);
+  </script>
+</body>
+
+</html>

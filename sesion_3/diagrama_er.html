@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagrama ER — Biblioteca</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0f1117;
+      --bg2: #1a1d2e;
+      --bg3: #252840;
+      --accent: #00d4ff;
+      --accent2: #7c3aed;
+      --accent3: #10b981;
+      --accent4: #f59e0b;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 48px 24px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 8px;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    .diagram-wrap {
+      background: var(--bg2);
+      border: 1px solid var(--bg3);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 1000px;
+      margin: 0 auto;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    }
+
+    .legend {
+      max-width: 1000px;
+      margin: 24px auto 0;
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .legend span.dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .mermaid { background: transparent !important; }
+  </style>
+</head>
+
+<body>
+  <h1>Diagrama ER — Ejercicio Biblioteca</h1>
+  <p class="subtitle">autores 1—N libros &nbsp;·&nbsp; libros N—N categorias (vía libros_categorias)</p>
+
+  <div class="diagram-wrap">
+    <pre class="mermaid">
+erDiagram
+    AUTORES ||--o{ LIBROS : escribe
+    LIBROS ||--o{ LIBROS_CATEGORIAS : tiene
+    CATEGORIAS ||--o{ LIBROS_CATEGORIAS : clasifica
+
+    AUTORES {
+        int id_autor PK
+        varchar nombre
+        varchar apellidos
+        varchar nacionalidad
+        date fecha_nacimiento
+    }
+
+    LIBROS {
+        int id_libro PK
+        varchar titulo
+        varchar isbn
+        year anio_publicacion
+        int id_autor FK
+    }
+
+    CATEGORIAS {
+        int id_categoria PK
+        varchar nombre
+        varchar descripcion
+    }
+
+    LIBROS_CATEGORIAS {
+        int id_libro PK,FK
+        int id_categoria PK,FK
+    }
+    </pre>
+  </div>
+
+  <div class="legend">
+    <div><span class="dot" style="background:var(--accent)"></span>Relación 1-N: autores → libros</div>
+    <div><span class="dot" style="background:var(--accent3)"></span>Relación N-N: libros ↔ categorias</div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        background: '#1a1d2e',
+        primaryColor: '#252840',
+        primaryTextColor: '#e2e8f0',
+        primaryBorderColor: '#00d4ff',
+        lineColor: '#7c3aed',
+        secondaryColor: '#252840',
+        tertiaryColor: '#1a1d2e'
+      }
+    });
+  </script>
+</body>
+
+</html>
