@@ -1,0 +1,9 @@
+[project]
+name = "1-proyecto-inicial"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12.13"
+dependencies = [
+    "fastapi[standard]>=0.139.0",
+]
