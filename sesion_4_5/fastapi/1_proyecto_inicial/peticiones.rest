@@ -1,0 +1,19 @@
+@host_local = http://localhost:
+@host_remoto = http://localhost:
+@port=8000
+### Peticion de raiz
+GET {{host_local}}{{port}}/autores
+
+### Peticion de un autor por id
+GET {{host_local}}{{port}}/autores/12
+
+### Agregar un autor
+POST {{host_local}}{{port}}/autores
+Content-Type: application/json
+
+{
+    "nombre": "Marta",
+    "apellidos": "Sanchez",
+    "nacionalidad": "España",
+    "fecha_nacimiento": "1960-03-06"
+}
