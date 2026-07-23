@@ -1,0 +1,55 @@
+@host_local = http://localhost:
+@host_remoto = http://localhost:
+@port=8000
+### Peticion de raiz
+GET {{host_local}}{{port}}/autores
+
+### Peticion de un autor por id - parametros de ruta
+GET {{host_local}}{{port}}/autores/1
+
+### Peticion de un autor por nacionalidad queryparams
+GET {{host_local}}{{port}}/autores?nacionalidad=española
+
+### Agregar un autor
+POST {{host_local}}{{port}}/autores
+Content-Type: application/json
+
+{
+    "nombre": "Marta",
+    "apellidos": "Sanchez",
+    "nacionalidad": "España",
+    "fecha_nacimiento": "1960-03-06"
+}
+
+### Borrar un autor por id
+DELETE {{host_local}}{{port}}/autores/8
+
+
+### Actualizar un autor
+PUT {{host_local}}{{port}}/autores/7
+Content-Type: application/json
+
+{
+    "id_autor": 7,
+    "nombre": "Raul",
+    "apellidos": "Sanchez",
+    "nacionalidad": "Chilena",
+    "fecha_nacimiento": "1960-03-06"
+}
+
+
+### Peticion de raiz de libros
+GET {{host_local}}{{port}}/libros
+
+
+### Agregar un libro
+POST {{host_local}}{{port}}/libros
+Content-Type: application/json
+
+{
+    "titulo": "El Quijote",
+    "isbn": "9788491050299",
+    "editorial": "Penguin",
+    "anio_publicacion": 1980,
+    "id_autor": 2
+}
